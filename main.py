@@ -52,3 +52,47 @@ def buscar_filme_nome(nome):
                         "tipo": dados['Type']
                     }
                 })
+
+# Endpoint para buscar por ID
+@app.route('/filme/id/<imdb_id>', methods=['GET'])
+def buscar_filme_id(imdb_id):
+    with connection_db.cursor() as cur:
+        # Procurar no banco
+        cur.execute("SELECT * FROM filmes WHERE imdb_id = %s", (imdb_id,))
+        filme = cur.fetchone()
+
+        if filme:
+            return jsonify({
+                "mensagem": "Filme encontrado no banco",
+                "filme": {
+                    "id": filme[0],
+                    "imdb_id": filme[1],
+                    "titulo": filme[2],
+                    "ano": filme[3],
+                    "tipo": filme[4]
+                }
+            })
+
+        # Se não achar, buscar na OMDb
+        resposta = requests.get(f"http://www.omdbapi.com/?i={imdb_id}&apikey=58cc3cb5")
+
+        if resposta.status_code == 200:
+            dados = resposta.json()
+
+            if dados.get('Response') == 'True':
+                # Salvar no banco
+                cur.execute("""
+                    INSERT INTO filmes (imdb_id, titulo, ano, tipo)
+                    VALUES (%s, %s, %s, %s)
+                """, (dados['imdbID'], dados['Title'], dados['Year'], dados['Type']))
+                connection_db.commit()
+
+                return jsonify({
+                    "mensagem": "Filme encontrado na OMDb e salvo no banco",
+                    "filme": {
+                        "imdb_id": dados['imdbID'],
+                        "titulo": dados['Title'],
+                        "ano": dados['Year'],
+                        "tipo": dados['Type']
+                    }
+                })
