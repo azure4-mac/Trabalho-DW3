@@ -25,3 +25,9 @@ http://164.90.152.205:80/filme/nome/Matrix
     "tipo": "movie"
   }
 }
+  # Caso o titulo não seja encontrado nem no banco nem na OMDb #
+{
+  "mensagem": "Título não encontrado.",
+  "erro": "Não foi encontrado nenhum filme com esse título, nem no banco de dados, nem na API OMDb."
+}
+
