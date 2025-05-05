@@ -1,3 +1,4 @@
+#Nosso banco de dados
 CREATE TABLE filmes (
     id SERIAL PRIMARY KEY,
     imdb_id VARCHAR(20) UNIQUE,
