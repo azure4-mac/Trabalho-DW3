@@ -35,7 +35,7 @@ def buscar_filme_nome(nome):
         if resposta.status_code == 200:
             dados = resposta.json()
 
-            if dados.get('Response') == 'True':
+            if dados.get('Response') == 'True':  # Verifica se a resposta é verdadeira
                 # Salvar no banco
                 cur.execute("""
                     INSERT INTO filmes (imdb_id, titulo, ano, tipo)
@@ -52,6 +52,12 @@ def buscar_filme_nome(nome):
                         "tipo": dados['Type']
                     }
                 })
+            else:
+                # Caso o filme não seja encontrado na OMDb
+                return jsonify({
+                    "mensagem": "Filme não encontrado na OMDb.",
+                    "erro": "Nenhum filme encontrado com esse nome na API OMDb."
+                }), 404  # Código de status HTTP 404 (não encontrado)
 
 # Endpoint para buscar por ID
 @app.route('/filme/id/<imdb_id>', methods=['GET'])
@@ -79,7 +85,7 @@ def buscar_filme_id(imdb_id):
         if resposta.status_code == 200:
             dados = resposta.json()
 
-            if dados.get('Response') == 'True':
+            if dados.get('Response') == 'True':  # Verifica se a resposta é verdadeira
                 # Salvar no banco
                 cur.execute("""
                     INSERT INTO filmes (imdb_id, titulo, ano, tipo)
@@ -96,3 +102,9 @@ def buscar_filme_id(imdb_id):
                         "tipo": dados['Type']
                     }
                 })
+            else:
+                # Caso o filme não seja encontrado na OMDb
+                return jsonify({
+                    "mensagem": "Filme não encontrado na OMDb.",
+                    "erro": "Nenhum filme encontrado com esse ID na API OMDb."
+                }), 404  # Código de status HTTP 404 (não encontrado)
