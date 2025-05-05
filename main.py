@@ -10,6 +10,7 @@ connection_db = psycopg.connect("dbname=mac user=postgres password=3f@db host=16
 @app.route('/filme/nome/<nome>', methods=['GET'])
 def buscar_filme_nome(nome):
     with connection_db.cursor() as cur:
+        # Buscar no banco
         cur.execute("SELECT * FROM filmes WHERE titulo ILIKE %s", (f"%{nome}%",))
         filmes = cur.fetchall()
 
@@ -25,23 +26,36 @@ def buscar_filme_nome(nome):
                 })
 
             return jsonify({
-                "mensagem": f"{len(resultado)} filme(s) encontrado(s).",
+                "mensagem": f"{len(resultado)} filme(s) encontrado(s) no banco.",
                 "filmes": resultado
             })
 
         # Se não achar, buscar na OMDb
-        resposta = requests.get(f"http://www.omdbapi.com/?t={nome}&apikey=58cc3cb5")
-        print(resposta)  
+        try:
+            resposta = requests.get(f"http://www.omdbapi.com/?t={nome}&apikey=58cc3cb5")
+            resposta.raise_for_status()  # Lança uma exceção se a resposta for um erro HTTP
+        except requests.exceptions.RequestException as e:
+            return jsonify({
+                "mensagem": "Erro ao acessar a OMDb",
+                "erro": str(e)
+            }), 500
+
         if resposta.status_code == 200:
             dados = resposta.json()
 
             if dados.get('Response') == 'True':  # Verifica se a resposta é verdadeira
-                # Salvar no banco
-                cur.execute("""
-                    INSERT INTO filmes (imdb_id, titulo, ano, tipo)
-                    VALUES (%s, %s, %s, %s)
-                """, (dados['imdbID'], dados['Title'], dados['Year'], dados['Type']))
-                connection_db.commit()
+                try:
+                    # Salvar no banco
+                    cur.execute("""
+                        INSERT INTO filmes (imdb_id, titulo, ano, tipo)
+                        VALUES (%s, %s, %s, %s)
+                    """, (dados['imdbID'], dados['Title'], dados['Year'], dados['Type']))
+                    connection_db.commit()
+                except psycopg.Error as db_error:
+                    return jsonify({
+                        "mensagem": "Erro ao salvar filme no banco",
+                        "erro": str(db_error)
+                    }), 500
 
                 return jsonify({
                     "mensagem": "Filme encontrado na OMDb e salvo no banco",
@@ -53,11 +67,16 @@ def buscar_filme_nome(nome):
                     }
                 })
             else:
-                # Caso o filme não seja encontrado na OMDb
                 return jsonify({
-                    "mensagem": "Filme não encontrado na OMDb.",
-                    "erro": "Nenhum filme encontrado com esse nome na API OMDb."
+                    "mensagem": "Título não encontrado.",
+                    "erro": "Não foi encontrado nenhum título com esse nome, nem no banco de dados, nem na API OMDb (a pesquisa inclui filmes e séries)."
                 }), 404  # Código de status HTTP 404 (não encontrado)
+
+        else:
+            return jsonify({
+                "mensagem": "Título não encontrado.",
+                "erro": "Não foi encontrado nenhum título com esse nome, nem no banco de dados, nem na API OMDb (a pesquisa inclui filmes e séries)."
+            }), 404  # Retorna status HTTP 404
 
 # Endpoint para buscar por ID
 @app.route('/filme/id/<imdb_id>', methods=['GET'])
@@ -80,18 +99,31 @@ def buscar_filme_id(imdb_id):
             })
 
         # Se não achar, buscar na OMDb
-        resposta = requests.get(f"http://www.omdbapi.com/?i={imdb_id}&apikey=58cc3cb5")
+        try:
+            resposta = requests.get(f"http://www.omdbapi.com/?i={imdb_id}&apikey=58cc3cb5")
+            resposta.raise_for_status()  # Lança uma exceção se a resposta for um erro HTTP
+        except requests.exceptions.RequestException as e:
+            return jsonify({
+                "mensagem": "Erro ao acessar a OMDb",
+                "erro": str(e)
+            }), 500
 
         if resposta.status_code == 200:
             dados = resposta.json()
 
             if dados.get('Response') == 'True':  # Verifica se a resposta é verdadeira
-                # Salvar no banco
-                cur.execute("""
-                    INSERT INTO filmes (imdb_id, titulo, ano, tipo)
-                    VALUES (%s, %s, %s, %s)
-                """, (dados['imdbID'], dados['Title'], dados['Year'], dados['Type']))
-                connection_db.commit()
+                try:
+                    # Salvar no banco
+                    cur.execute("""
+                        INSERT INTO filmes (imdb_id, titulo, ano, tipo)
+                        VALUES (%s, %s, %s, %s)
+                    """, (dados['imdbID'], dados['Title'], dados['Year'], dados['Type']))
+                    connection_db.commit()
+                except psycopg.Error as db_error:
+                    return jsonify({
+                        "mensagem": "Erro ao salvar filme no banco",
+                        "erro": str(db_error)
+                    }), 500
 
                 return jsonify({
                     "mensagem": "Filme encontrado na OMDb e salvo no banco",
@@ -102,9 +134,11 @@ def buscar_filme_id(imdb_id):
                         "tipo": dados['Type']
                     }
                 })
+                # Caso nao tenha
             else:
-                # Caso o filme não seja encontrado na OMDb
                 return jsonify({
-                    "mensagem": "Filme não encontrado na OMDb.",
-                    "erro": "Nenhum filme encontrado com esse ID na API OMDb."
+                    "mensagem": "Título não encontrado.",
+                    "erro": "Não foi encontrado nenhum título com esse ID, nem no banco de dados, nem na API OMDb (a pesquisa inclui filmes e séries)."
                 }), 404  # Código de status HTTP 404 (não encontrado)
+
+      
