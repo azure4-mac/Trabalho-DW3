@@ -33,7 +33,7 @@ def buscar_filme_nome(nome):
         # Se não achar, buscar na OMDb
         try:
             resposta = requests.get(f"https://www.omdbapi.com/?t={nome}&apikey=58cc3cb5")
-            resposta.raise_for_status()  # Lança uma exceção se a resposta for um erro HTTP
+            resposta.raise_for_status() 
         except requests.exceptions.RequestException as e:
             return jsonify({
                 "mensagem": "Erro ao acessar a OMDb",
@@ -43,7 +43,7 @@ def buscar_filme_nome(nome):
         if resposta.status_code == 200:
             dados = resposta.json()
 
-            if dados.get('Response') == 'True':  # Verifica se a resposta é verdadeira
+            if dados.get('Response') == 'True':
                 try:
                     # Salvar no banco
                     cur.execute("""
@@ -70,13 +70,13 @@ def buscar_filme_nome(nome):
                 return jsonify({
                     "mensagem": "Título não encontrado.",
                     "erro": "Não foi encontrado nenhum título com esse nome, nem no banco de dados, nem na API OMDb (a pesquisa inclui filmes e séries)."
-                }), 404  # Código de status HTTP 404 (não encontrado)
+                }), 404  # não encontrado
 
         else:
             return jsonify({
                 "mensagem": "Título não encontrado.",
                 "erro": "Não foi encontrado nenhum título com esse nome, nem no banco de dados, nem na API OMDb (a pesquisa inclui filmes e séries)."
-            }), 404  # Retorna status HTTP 404
+            }), 404  # não encontrado
 
 # Endpoint para buscar por ID
 @app.route('/filme/id/<imdb_id>', methods=['GET'])
@@ -101,7 +101,7 @@ def buscar_filme_id(imdb_id):
         # Se não achar, buscar na OMDb
         try:
             resposta = requests.get(f"https://www.omdbapi.com/?i={imdb_id}&apikey=58cc3cb5")
-            resposta.raise_for_status()  # Lança uma exceção se a resposta for um erro HTTP
+            resposta.raise_for_status() 
         except requests.exceptions.RequestException as e:
             return jsonify({
                 "mensagem": "Erro ao acessar a OMDb",
@@ -111,7 +111,7 @@ def buscar_filme_id(imdb_id):
         if resposta.status_code == 200:
             dados = resposta.json()
 
-            if dados.get('Response') == 'True':  # Verifica se a resposta é verdadeira
+            if dados.get('Response') == 'True':
                 try:
                     # Salvar no banco
                     cur.execute("""
@@ -139,7 +139,7 @@ def buscar_filme_id(imdb_id):
                 return jsonify({
                     "mensagem": "Título não encontrado.",
                     "erro": "Não foi encontrado nenhum título com esse ID, nem no banco de dados, nem na API OMDb (a pesquisa inclui filmes e séries)."
-                }), 404  # Código de status HTTP 404 (não encontrado)
+                }), 404  # não encontrado
 
       
 if __name__ == '__main__':
