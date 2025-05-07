@@ -22,7 +22,7 @@ Instale a extensão REST no VSCode
 Clique no arquivo main.http e procure o filme que você quiser, como no exemplo abaixo.
 
 # Exemplo de como fazer a requisição 
-http://164.90.152.205:80/filme/nome/Matrix
+http://164.90.152.205:80/filme/nome/Titanic
 # O que sera exibido?(se tiver no banco) #
 {
   "mensagem": "1 filme(s) encontrado(s).",
