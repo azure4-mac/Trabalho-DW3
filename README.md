@@ -3,19 +3,10 @@ Olá seja bem vindo ao nosso programa de busca de informações de filmes, para 
 # Passo Executar 
 
 ```bash
-python -m venv .venv
+pip install -r requirements.txt
 ```
 ```bash
-.venv\Scripts\activate
-```
-```bash
-pip install flask
-```
-```bash
-pip install psycopg[binary]
-```
-```bash
-flask --app main.py run
+python main.py
 ```
 
 Instale a extensão REST no VSCode

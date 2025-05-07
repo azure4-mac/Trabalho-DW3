@@ -142,3 +142,5 @@ def buscar_filme_id(imdb_id):
                 }), 404  # Código de status HTTP 404 (não encontrado)
 
       
+if __name__ == '__main__':
+    app.run(debug=True)
