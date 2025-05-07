@@ -32,7 +32,7 @@ def buscar_filme_nome(nome):
 
         # Se não achar, buscar na OMDb
         try:
-            resposta = requests.get(f"http://www.omdbapi.com/?t={nome}&apikey=58cc3cb5")
+            resposta = requests.get(f"https://www.omdbapi.com/?t={nome}&apikey=58cc3cb5")
             resposta.raise_for_status()  # Lança uma exceção se a resposta for um erro HTTP
         except requests.exceptions.RequestException as e:
             return jsonify({
@@ -100,7 +100,7 @@ def buscar_filme_id(imdb_id):
 
         # Se não achar, buscar na OMDb
         try:
-            resposta = requests.get(f"http://www.omdbapi.com/?i={imdb_id}&apikey=58cc3cb5")
+            resposta = requests.get(f"https://www.omdbapi.com/?i={imdb_id}&apikey=58cc3cb5")
             resposta.raise_for_status()  # Lança uma exceção se a resposta for um erro HTTP
         except requests.exceptions.RequestException as e:
             return jsonify({
@@ -143,4 +143,4 @@ def buscar_filme_id(imdb_id):
 
       
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0',port=5000)
